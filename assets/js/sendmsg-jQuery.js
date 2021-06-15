@@ -1,9 +1,17 @@
 $(document).ready(function () {
     $("#sendmsg").click(function () {
         var clientmsg = $("#usermsg").val();
-        $.post("post.php", { text: clientmsg });
-        $("#usermsg").val("");
-        return false;
+        console.log(clientmsg);
+        if (clientmsg){
+            if(clientmsg.charAt(0) == "$"){
+                $.post("post_commands.php", { command: clientmsg, });
+                $("#usermsg").val("");
+                return false;
+            }
+            $.post("post.php", { text: clientmsg });
+            $("#usermsg").val("");
+            return false;
+        }
     });
 
     function loadLog() {
@@ -32,7 +40,7 @@ $(document).ready(function () {
     setInterval(deleteOldestLogMsg, 30000);
 
     $("#exit").click(function () {
-        var exit = confirm("Are you sure you want to end the session?");
+        var exit = confirm("Logout?");
         if (exit == true) {
             window.location = "index.php?logout=true";
         }

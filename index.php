@@ -1,67 +1,28 @@
 <?php
-    session_start();
+session_start();
 
-    if(isset($_GET['logout'])){
-        $logoutmsg = "<div class='msgln'><span class='left-info'>User <b class='user-name-left'>". $_SESSION['name'] ."</b> apparently don't want to hit more anyone.</span><br></div>\n";
-        file_put_contents("log.html", $logoutmsg, FILE_APPEND | LOCK_EX);
+if(isset($_GET['logout'])){
+    $logoutmsg = "<div class='msgln'><span class='left-info'>User <b class='user-name-left'>". $_SESSION['name'] ."</b> apparently don't want to hit more anyone.</span><br></div>\n";
+    file_put_contents("log.html", $logoutmsg, FILE_APPEND | LOCK_EX);
 
-        session_destroy();
-        header("Location: ./");
-        echo '<span class="error"> Password does not match user!</span>';
-    }
+    session_destroy();
+    header("Location: ./");
+    echo '<span class="error"> Password does not match user!</span>';
+}
 
-    if(isset($_POST['enter'])){
-        if($_POST['name'] != "" && $_POST['passwd'] != ""){
-            $_SESSION['name'] = stripslashes(htmlspecialchars($_POST['name']));
-            $pass_hash = hash_hmac("md5", $_POST['passwd'], "cllFlag{n0T_S0_s3cr3T_k3y5_1n_crypT0}", false);
-            
-            $sql_check_in_db = "SELECT users, password_hashes FROM `users` WHERE users.users = '{$_POST['name']}'";
-
-            $con = getCon();
-
-            $result = $con->query($sql_check_in_db);
-            // var_dump($result);
-            $row = $result->fetch_array();
-            // var_dump($row);
-            if ($row){
-                if ($row['password_hashes'] == $pass_hash){
-                    echo '<span class="succes"> Login succes!</span>';
-                }else{
-                    echo '<span class="error"> Password does not match user!</span>';
-                    header("Location: index.php?logout=true");
-                }
-            } else {
-                $sql_insert_in_db = "INSERT INTO `users` (`id`, `users`, `password_hashes`) VALUES (NULL, '{$_POST['name']}', '{$pass_hash}');";
-                $con->query($sql_insert_in_db);
-                echo '<span class="succes"> First login! User added in DB</span>';
-            }
-
-
-        }else{
-            echo '<span class="error"> Type your name and password correctly!</span>';
-        }
-    }
-
-    function getCon(){
-        $con = new mysqli('localhost', 'root','','kollbek');
-        if($con->connect_errno != 0){return null;}
-        $con->query("SET NAMES UTF-8");
-        return $con;
-    }
-
-    function loginForm(){
-        echo 
-        '<div id="loginform">
-            <p>Type name and password to join spitty-chat!</p>
-            <form action="index.php" method="POST">
-                <label for="name">Name </label>
-                <input type="text" name="name" id="name"/>
-                <label for="passwd">Password </label>
-                <input type="password" name="passwd" id="passwd"/>
-                <input type="submit" name="enter" id="enter" value="Enter"/>
-            </form> 
-        </div>';
-    }
+function loginForm(){
+    echo 
+    '<div id="loginform">
+        <p>Type name and password to join spitty-chat!</p>
+        <form action="login.php" method="POST">
+            <label for="name">Name </label>
+            <input type="text" name="name" id="name"/>
+            <label for="passwd">Password </label>
+            <input type="password" name="passwd" id="passwd"/>
+            <input type="submit" name="enter" id="enter" value="Enter"/>
+        </form> 
+    </div>';
+}
 ?> 
 
 <!DOCTYPE html>
@@ -77,9 +38,6 @@
     <?php
         if(!isset($_SESSION['name'])){
             $pass = loginForm();
-            // while(!$pass){
-            //     $pass = loginForm();
-            // };
         } else {
     ?>
     <div id="wrapper">

@@ -24,7 +24,12 @@ $(document).ready(function () {
         });
     }
 
-    setInterval (loadLog, 1000);
+    function deleteOldestLogMsg(){
+        $.post("delete.php", {delete: true});
+    };
+
+    setInterval(loadLog, 1000);
+    setInterval(deleteOldestLogMsg, 30000);
 
     $("#exit").click(function () {
         var exit = confirm("Are you sure you want to end the session?");
